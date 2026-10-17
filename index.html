@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="mn">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ШУТИС МХТС 2D Ухаалаг Кампус</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- 2D Canvas -->
+      <canvas id="game-canvas"></canvas>
+
+      <!-- UI Давхарга -->
+      <div class="ui-overlay">
+        <!-- 1. Шууд Зарлалын Тиккер (Broadcast Banner) -->
+        <div class="broadcast-ticker interactive" id="broadcast-ticker">
+          📢 ШУТИС МХТС: 2026 оны намрын улирлын сургалтын танхимуудын бүртгэл явагдаж байна!
+        </div>
+
+        <!-- 2. Дээд Навигаци Бар -->
+        <div class="top-navbar">
+          <!-- Брэнд & Давхар солигч -->
+          <div class="brand-badge interactive">
+            <div class="brand-title">ШУТИС • МХТС</div>
+            <!-- Давхар солих (Floor Switcher) -->
+            <div class="floor-switcher" id="floor-switcher">
+              <button class="floor-btn active" data-floor="1">1-р давхар</button>
+              <button class="floor-btn" data-floor="2">2-р давхар</button>
+            </div>
+          </div>
+
+          <!-- Өрөө хайлтын систем (Room & Facility Search) -->
+          <div class="search-container interactive">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="room-search-input" class="search-input" placeholder="Өрөө, лаб хайх (110, 102, Спорт...)..." autocomplete="off" />
+            <div class="search-dropdown" id="search-dropdown"></div>
+          </div>
+
+          <!-- Хэрэглэгчийн Профайл & Тохиргоо -->
+          <div class="user-bar interactive">
+            <div class="profile-pill" id="btn-open-profile" title="Профайл тохиргоо">
+              <span class="status-dot-sm campus" id="profile-status-dot"></span>
+              <span id="profile-display-name" style="font-size:13px; font-weight:700;">Оюутан</span>
+              <span class="role-tag student" id="profile-role-tag">Оюутан</span>
+            </div>
+
+            <!-- Дуу хаах/нээх товч -->
+            <button class="icon-btn" id="btn-sound-toggle" title="Дуу хаах/нээх">🔊</button>
+
+            <!-- Админ самбар товч -->
+            <button class="icon-btn" id="btn-open-admin" title="Админ Панел">⚙️</button>
+          </div>
+        </div>
+
+        <!-- 3. Сургуулийн Аялал / Даалгаврын карт (Campus Quest Tracker) -->
+        <div class="quest-tracker interactive" id="quest-tracker">
+          <div class="quest-header">
+            <span class="quest-title">🎓 Сургуулийн Аялал</span>
+            <span id="quest-count" style="font-size:11px; font-weight:700; color:#38bdf8;">1/5 Даалгавар</span>
+          </div>
+          <div class="quest-step-name" id="quest-step-name">1. Сургуульд хүрэлцэн ирэх</div>
+          <div class="quest-step-desc" id="quest-step-desc">МХТС-ийн төв үүдний танхимтай (Лобби) танилцана уу.</div>
+          <div class="quest-progress-bg">
+            <div class="quest-progress-bar" id="quest-progress-bar" style="width: 20%;"></div>
+          </div>
+        </div>
+
+        <!-- 4. Камерын удирдлага (Zoom & POI toggle) -->
+        <div class="zoom-controls interactive">
+          <button class="zoom-btn" id="btn-zoom-in" title="Томруулах">+</button>
+          <button class="zoom-btn" id="btn-zoom-out" title="Жижигрүүлэх">−</button>
+          <button class="zoom-btn" id="btn-zoom-reset" title="Тоглогч дээр төвлөрөх">🎯</button>
+          <button class="zoom-btn" id="btn-poi-toggle" title="POI Тэмдэглэгээ харуулах/нуух">📍</button>
+        </div>
+
+        <!-- 5. Олон сувагт Чат систем (Multi-Channel Chat) -->
+        <div class="chat-container interactive" id="chat-container">
+          <!-- Чатны Табууд -->
+          <div class="chat-tabs">
+            <button class="chat-tab active" data-tab="global">🌐 Нийтийн</button>
+            <button class="chat-tab" data-tab="room">📍 Өрөөний</button>
+            <button class="chat-tab" data-tab="private">🔒 Хувийн (DM)</button>
+            <button id="btn-toggle-chat" style="background:transparent; border:none; color:#94a3b8; font-size:14px; padding:0 8px; cursor:pointer;" title="Хураах / Дэлгэх">▾</button>
+          </div>
+
+          <!-- Мессежийн түүх -->
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg">
+              <span class="time">12:00</span>
+              <span class="sender admin">Систем:</span>
+              <span>Тавтай морил! ШУТИС МХТС 2D Ухаалаг Кампуст холбогдлоо.</span>
+            </div>
+          </div>
+
+          <!-- Эможи / Reaction сонгогч -->
+          <div class="emote-picker">
+            <button class="emote-btn" data-emote="👋" title="Мэндлэх">👋</button>
+            <button class="emote-btn" data-emote="💻" title="Код бичих">💻</button>
+            <button class="emote-btn" data-emote="☕" title="Цайлах">☕</button>
+            <button class="emote-btn" data-emote="🏀" title="Сагс тоглох">🏀</button>
+            <button class="emote-btn" data-emote="👍" title="Зөвшөөрөх">👍</button>
+            <button class="emote-btn" data-emote="❤️" title="Таалагдлаа">❤️</button>
+            <button class="emote-btn" data-emote="🔥" title="Гал">🔥</button>
+            <button class="emote-btn" data-emote="🎓" title="Сургууль">🎓</button>
+          </div>
+
+          <!-- Мессеж бичих талбар -->
+          <div class="chat-input-bar">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Нийтийн чатад бичих (Enter)..." maxlength="140" />
+            <button id="chat-send" class="chat-send-btn">Илгээх</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 6. МОДАЛУУД ================= -->
+
+      <!-- Модал 1: Нэвтрэх & Бүртгүүлэх (Authentication Modal) -->
+      <div class="modal-overlay" id="auth-modal">
+        <div class="modal-content interactive">
+          <button class="modal-close-x" id="btn-close-auth">✕</button>
+          <div class="modal-header-title">ШУТИС • МХТС НЭВТРЭХ</div>
+          <p style="font-size:12.5px; color:#94a3b8; margin-bottom:16px;">
+            Оюутны системд нэвтрэх эсвэл шинээр бүртгүүлнэ үү.
+          </p>
+
+          <div style="display:flex; gap:8px; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.1);">
+            <button id="tab-login" style="flex:1; background:none; border:none; color:#38bdf8; font-weight:700; padding:8px; cursor:pointer; border-bottom:2px solid #38bdf8;">Нэвтрэх</button>
+            <button id="tab-register" style="flex:1; background:none; border:none; color:#94a3b8; font-weight:700; padding:8px; cursor:pointer;">Бүртгүүлэх</button>
+          </div>
+
+          <!-- Нэвтрэх хэсэг -->
+          <form id="form-login">
+            <div class="form-group">
+              <label class="form-label">Оюутны код / Нэвтрэх нэр:</label>
+              <input type="text" id="login-code" class="form-input" placeholder="Жишээ нь: B210910001 эсвэл ADMIN" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Нууц үг:</label>
+              <input type="password" id="login-pass" class="form-input" placeholder="Нууц үг оруулна уу..." required />
+            </div>
+            <button type="submit" class="enter-btn">Нэвтрэх 🚀</button>
+            <div style="margin-top:10px; font-size:11px; color:#64748b; text-align:center;">
+              Туршилтын хаягууд: <b>B210910001</b> / 123 (Оюутан) | <b>ADMIN</b> / admin (Админ)
+            </div>
+          </form>
+
+          <!-- Бүртгүүлэх хэсэг -->
+          <form id="form-register" style="display:none;">
+            <div class="form-group">
+              <label class="form-label">Оюутны код:</label>
+              <input type="text" id="reg-code" class="form-input" placeholder="B220910002" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Овог нэр:</label>
+              <input type="text" id="reg-name" class="form-input" placeholder="Б.Бат-Оргил" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Эрх:</label>
+              <select id="reg-role" class="form-input" style="background:#0f172a; color:#fff;">
+                <option value="student">Оюутан (Student)</option>
+                <option value="teacher">Багш (Teacher)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Нууц үг:</label>
+              <input type="password" id="reg-pass" class="form-input" placeholder="Нууц үг зохионо уу..." required />
+            </div>
+            <button type="submit" class="enter-btn">Бүртгүүлэх & Нэвтрэх ✨</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Модал 2: Профайл & Аватар тохиргоо (Profile Modal) -->
+      <div class="modal-overlay" id="profile-modal">
+        <div class="modal-content interactive">
+          <button class="modal-close-x" id="btn-close-profile">✕</button>
+          <div class="modal-header-title">ХЭРЭГЛЭГЧИЙН ПРОФАЙЛ</div>
+          
+          <div class="form-group">
+            <label class="form-label">Таны нэр:</label>
+            <input type="text" id="prof-name" class="form-input" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Одоогийн байдал / Төлөв:</label>
+            <select id="prof-status" class="form-input" style="background:#0f172a; color:#fff;">
+              <option value="campus">🟢 Сургууль дээр байна</option>
+              <option value="busy">🔴 Завгүй / Хичээлтэй байна</option>
+              <option value="home">🏠 Гэртээ (Онлайн)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Хувцасны өнгө (Цамц):</label>
+            <input type="color" id="prof-color" style="width:100%; height:36px; border:none; border-radius:6px; cursor:pointer;" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Үсний өнгө:</label>
+            <input type="color" id="prof-hair" style="width:100%; height:36px; border:none; border-radius:6px; cursor:pointer;" />
+          </div>
+
+          <button id="btn-save-profile" class="enter-btn">Хадгалах ✨</button>
+        </div>
+      </div>
+
+      <!-- Модал 3: Өрөөний дэлгэрэнгүй & Хуваарь & Сэтгэгдэл (Room Detail Modal) -->
+      <div class="modal-overlay" id="room-detail-modal">
+        <div class="modal-content interactive" style="width: 520px;">
+          <button class="modal-close-x" id="btn-close-room">✕</button>
+          <div class="modal-header-title" id="room-modal-title">110 МТ Компьютерийн Лаборатори</div>
+          <div style="font-size:12px; color:#38bdf8; margin-bottom:8px;" id="room-modal-subtitle">
+            Багтаамж: 45 суудал | Хариуцсан: Ахлах багш Б.Мөнхбат
+          </div>
+          <p id="room-modal-desc" style="font-size:12.5px; color:#cbd5e1; margin-bottom:14px; line-height:1.4;">
+            Мэдээллийн Технологийн өндөр хүчин чадалтай компьютерийн лаборатори.
+          </p>
+
+          <!-- Цагийн хуваарь -->
+          <div style="font-weight:700; font-size:13px; color:#f8fafc; margin-top:12px; margin-bottom:4px;">
+            📅 Өдрийн Хичээлийн Хуваарь:
+          </div>
+          <table class="schedule-table" id="room-schedule-table">
+            <thead>
+              <tr><th>Цаг</th><th>Хичээлийн нэр</th><th>Багш</th></tr>
+            </thead>
+            <tbody id="room-schedule-body"></tbody>
+          </table>
+
+          <!-- Сэтгэгдэл / Үнэлгээний хэсэг -->
+          <div style="font-weight:700; font-size:13px; color:#f8fafc; margin-top:16px; margin-bottom:6px;">
+            ⭐ Оюутнуудын Үнэлгээ ба Сэтгэгдэл:
+          </div>
+          <div id="room-reviews-list" style="max-height:120px; overflow-y:auto; margin-bottom:12px;"></div>
+
+          <!-- Сэтгэгдэл үлдээх форм -->
+          <div style="display:flex; gap:6px;">
+            <select id="review-rating" style="background:#0f172a; border:1px solid rgba(255,255,255,0.2); color:#f59e0b; border-radius:6px; padding:6px; font-size:12px;">
+              <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+              <option value="4">⭐⭐⭐⭐ (4)</option>
+              <option value="3">⭐⭐⭐ (3)</option>
+            </select>
+            <input type="text" id="review-comment-input" class="form-input" placeholder="Өрөөний талаар сэтгэгдэл үлдээх..." style="font-size:12px; padding:6px 10px;" />
+            <button id="btn-submit-review" style="background:#0284c7; border:none; color:#fff; font-weight:700; border-radius:6px; padding:0 12px; cursor:pointer; font-size:12px;">Илгээх</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Модал 4: Админ Панел (Admin Panel Modal) -->
+      <div class="modal-overlay" id="admin-modal">
+        <div class="modal-content interactive" style="width: 540px;">
+          <button class="modal-close-x" id="btn-close-admin">✕</button>
+          <div class="modal-header-title">👑 МХТС АДМИН УДИРДЛАГЫН САМБАР</div>
+          <p style="font-size:12px; color:#94a3b8; margin-bottom:14px;">
+            Сургуулийн бодит цагийн төлөв, зарлал ба хэрэглэгчийн удирдлага.
+          </p>
+
+          <!-- Зарлал цацах -->
+          <div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:12px; margin-bottom:14px;">
+            <div style="font-weight:700; font-size:12.5px; color:#38bdf8; margin-bottom:6px;">📢 Сургууль даяар зар түгээх (Broadcast):</div>
+            <div style="display:flex; gap:6px;">
+              <input type="text" id="admin-broadcast-input" class="form-input" placeholder="Нийтэд харуулах шуурхай зар..." />
+              <button id="btn-admin-broadcast-send" style="background:#0284c7; border:none; color:#fff; font-weight:700; border-radius:6px; padding:0 14px; cursor:pointer; font-size:12px; white-space:nowrap;">Зарлах 📡</button>
+            </div>
+          </div>
+
+          <!-- Онлайн хэрэглэгчид & Эрх олгох -->
+          <div style="font-weight:700; font-size:13px; color:#f8fafc; margin-bottom:6px;">
+            👥 Онлайн Хэрэглэгчид (<span id="admin-online-count">1</span>):
+          </div>
+          <div id="admin-users-list" style="max-height:160px; overflow-y:auto; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:8px;"></div>
+        </div>
+      </div>
+
+      <!-- Модал 5: Хувийн чат сонгох цонх (Private Chat Target Picker) -->
+      <div class="modal-overlay" id="dm-picker-modal">
+        <div class="modal-content interactive" style="width: 380px;">
+          <button class="modal-close-x" id="btn-close-dm">✕</button>
+          <div class="modal-header-title">ХУВИЙН ЧАТЛАХ ОЮУТАН СОНГОХ</div>
+          <div id="dm-users-list" style="max-height:220px; overflow-y:auto; margin-top:10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
