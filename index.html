@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ШУТИС МХТС 2D Ухаалаг Кампус</title>
     <link rel="stylesheet" href="/src/style.css" />
+    <!-- Нэвтрээгүй бол login хуудас руу шилжүүлнэ, нэвтэрсэн бол профайлыг тоглоомд дамжуулна -->
+    <script src="/common.js"></script>
+    <script>
+      var me = getCurrentUser();
+      if (me == null) {
+        window.location.href = '/login.html';
+      } else {
+        saveForGame(me);
+      }
+    </script>
   </head>
   <body>
     <div id="app">
@@ -51,6 +61,9 @@
 
             <!-- Админ самбар товч -->
             <button class="icon-btn" id="btn-open-admin" title="Админ Панел">⚙️</button>
+
+            <!-- Гарах товч -->
+            <button class="icon-btn logout-btn" id="btn-top-logout" title="Системээс гарах">🚪</button>
           </div>
         </div>
 
@@ -203,6 +216,10 @@
           </div>
 
           <button id="btn-save-profile" class="enter-btn">Хадгалах ✨</button>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <a href="/profile.html" class="enter-btn" style="flex:1; text-align:center; text-decoration:none; background:#475569;">Дэлгэрэнгүй профайл</a>
+            <a href="#" id="btn-logout" class="enter-btn" style="flex:1; text-align:center; text-decoration:none; background:#ef4444;">Гарах</a>
+          </div>
         </div>
       </div>
 

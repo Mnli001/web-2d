@@ -58,6 +58,24 @@ const localPlayer = new Character({
   isLocal: true
 });
 
+// Өмнө гарахдаа байсан байршлыг сэргээх (ижил давхар дээр бол)
+const savedPos = JSON.parse(localStorage.getItem('sict_position') || 'null');
+if (savedPos && savedPos.floor === currentFloor) {
+  localPlayer.x = savedPos.x;
+  localPlayer.y = savedPos.y;
+}
+
+// Хуудас хаах эсвэл гарахад байршлыг хадгална
+window.addEventListener('beforeunload', () => {
+  localStorage.setItem('sict_position', JSON.stringify({
+    floor: currentFloor,
+    x: localPlayer.x,
+    y: localPlayer.y
+  }));
+  // Серверээс шууд салгана, эс бөгөөс хуучин дүрс тоглоомд үлддэг
+  if (socket) socket.disconnect();
+});
+
 const otherPlayers = {};
 const camera = { x: localPlayer.x, y: localPlayer.y };
 
@@ -629,6 +647,17 @@ document.getElementById('btn-save-profile').addEventListener('click', () => {
   currentUser.hairColor = localPlayer.hairColor;
   localStorage.setItem('sict_current_user', JSON.stringify(currentUser));
 
+  // profile.html-тэй ижил мэдээлэлтэй байхын тулд хэрэглэгчийн жагсаалтад ч хадгална
+  const users = JSON.parse(localStorage.getItem('shutis_users') || '[]');
+  const email = localStorage.getItem('current_email') || sessionStorage.getItem('current_email');
+  const me = users.find(u => u.email === email);
+  if (me) {
+    me.name = localPlayer.name;
+    me.place = localPlayer.status === 'home' ? 'home' : 'school';
+    me.status = localPlayer.status === 'busy' ? 'busy' : 'online';
+    localStorage.setItem('shutis_users', JSON.stringify(users));
+  }
+
   updateProfileUI();
   profileModal.style.display = 'none';
   sound.playClick();
@@ -653,6 +682,17 @@ function updateProfileUI() {
   statusDot.className = `status-dot-sm ${localPlayer.status || 'campus'}`;
 }
 updateProfileUI();
+
+// Гарах: байршлыг хадгалаад login руу буцна
+function logout(e) {
+  e.preventDefault();
+  if (!confirm('Системээс гарах уу?')) return;
+  localStorage.removeItem('current_email');
+  sessionStorage.removeItem('current_email');
+  window.location.href = '/login.html';
+}
+document.getElementById('btn-logout').addEventListener('click', logout);
+document.getElementById('btn-top-logout').addEventListener('click', logout);
 
 // Auth Modal
 document.getElementById('btn-close-auth').addEventListener('click', () => authModal.style.display = 'none');
@@ -755,6 +795,8 @@ function initMultiplayer() {
     socket.on('connect', () => {
       console.log('Multiplayer холбогдлоо:', socket.id);
       socket.emit('profile:update', {
+        studentCode: currentUser.studentCode,
+        role: currentUser.role,
         name: localPlayer.name,
         color: localPlayer.color,
         hairColor: localPlayer.hairColor,
