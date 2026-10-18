@@ -140,6 +140,19 @@ io.on('connection', (socket) => {
 
   socket.on('profile:update', (data) => {
     if (players[socket.id]) {
+      // Нэг хэрэглэгч нэг л дүрстэй байна: хуучин холболт үлдсэн бол салгана
+      if (data.studentCode) {
+        for (const id in players) {
+          if (id !== socket.id && players[id].studentCode === data.studentCode) {
+            const oldSocket = io.sockets.sockets.get(id);
+            if (oldSocket) oldSocket.disconnect(true);
+            delete players[id];
+            io.emit('playerLeft', id);
+          }
+        }
+        players[socket.id].studentCode = data.studentCode;
+      }
+      if (data.role) players[socket.id].role = data.role;
       if (data.name) players[socket.id].name = data.name;
       if (data.color) players[socket.id].color = data.color;
       if (data.hairColor) players[socket.id].hairColor = data.hairColor;

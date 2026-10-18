@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Нэвтрэх</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+<div class="box">
+  <h2>ШУТИС МХТС 2D Кампус</h2>
+
+  <!-- Нэвтрэх хэсэг -->
+  <div id="login-part">
+    <label>Оюутны / багшийн код эсвэл мэйл</label>
+    <input type="text" id="l-id">
+    <label>Нууц үг</label>
+    <input type="password" id="l-pass">
+    <label class="check"><input type="checkbox" id="l-remember" checked> Намайг сана</label>
+    <button onclick="login()">Нэвтрэх</button>
+    <div class="link" onclick="showPart('register')">Бүртгэлгүй юу? Бүртгүүлэх</div>
+  </div>
+
+  <!-- Бүртгүүлэх хэсэг -->
+  <div id="register-part" class="hide">
+    <label>Нэр</label>
+    <input type="text" id="r-name">
+    <label>Мэйл</label>
+    <input type="email" id="r-email">
+    <label>Эрх</label>
+    <select id="r-role" onchange="changeCodeLabel()">
+      <option value="student">Оюутан</option>
+      <option value="teacher">Багш</option>
+    </select>
+    <label id="r-code-label">Оюутны код</label>
+    <input type="text" id="r-code" placeholder="Жишээ нь: B210910001">
+    <label>Нууц үг (6-аас дээш тэмдэгт)</label>
+    <input type="password" id="r-pass">
+    <button onclick="register()">Бүртгүүлэх</button>
+    <div class="link" onclick="showPart('login')">Буцах</div>
+  </div>
+
+  <div id="message" class="error"></div>
+  <p class="small center">Туршилтын админ: admin@shutis.mn / admin123</p>
+</div>
+
+<script src="common.js"></script>
+<script src="login.js"></script>
+</body>
+</html>

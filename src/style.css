@@ -616,3 +616,5 @@ canvas#game-canvas {
   display: flex;
   justify-content: space-between;
 }
+/* Гарах товч */
+.icon-btn.logout-btn:hover { background: #ef4444; }

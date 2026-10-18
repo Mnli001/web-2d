@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Профайл</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+<div class="box">
+  <h2>Миний профайл</h2>
+  <img class="avatar" id="avatar-img" alt="зураг">
+  <h3 class="center" id="name-text"></h3>
+  <p class="center">Эрх: <span id="role-text" class="role"></span></p>
+
+  <!-- Оюутны төлөвийн индикатор -->
+  <div class="status-box" id="status-box"></div>
+  <p class="center small" id="last-login"></p>
+
+  <label>Нэр</label>
+  <input type="text" id="p-name">
+
+  <label>Профайл зураг (200KB-аас бага)</label>
+  <input type="file" id="p-file" accept="image/*">
+
+  <label>Төлөв</label>
+  <select id="p-status">
+    <option value="online">Онлайн</option>
+    <option value="busy">Завгүй</option>
+    <option value="away">Холдсон</option>
+    <option value="offline">Офлайн</option>
+  </select>
+
+  <label>Байршил</label>
+  <select id="p-place">
+    <option value="school">Сургууль дээр байна</option>
+    <option value="home">Гэртээ байна</option>
+  </select>
+
+  <button onclick="saveProfile()">Хадгалах</button>
+  <div id="message" class="ok"></div>
+
+  <!-- Багш, админд харагдах хэсэг -->
+  <div id="role-part" class="hide">
+    <h3 id="role-title"></h3>
+    <table id="user-table"></table>
+  </div>
+
+  <button class="gray" onclick="window.location.href='index.html'">Тоглоом руу буцах</button>
+  <button class="gray" onclick="logout()">Гарах</button>
+</div>
+
+<script src="common.js"></script>
+<script src="profile.js"></script>
+</body>
+</html>
